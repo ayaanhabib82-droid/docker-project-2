@@ -1,0 +1,14 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+backend.generated.hcl
+.terraform.lock.hcl
+.gitignore
+.dockerignore
+INFRASTRUCTURE.md
+main.tf
+outputs.tf
+variables.tf
+terraform.tfvars.example

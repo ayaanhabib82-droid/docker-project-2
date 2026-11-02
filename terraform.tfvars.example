@@ -1,0 +1,18 @@
+aws_region                 = "ap-southeast-1"
+project_name               = "zepprz"
+environment                = "prod"
+availability_zone_count    = 2
+domain_name                = ""
+route53_zone_id            = ""
+image_tag                  = "latest"
+desired_count              = 2
+minimum_capacity           = 2
+maximum_capacity           = 6
+db_instance_class          = "db.t4g.medium"
+db_allocated_storage       = 20
+redis_node_type            = "cache.t4g.micro"
+waf_rate_limit             = 2000
+enable_deletion_protection = true
+alert_emails               = []
+
+# For a custom domain, replace the empty values above with a domain in an existing public hosted zone.

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffc928" />
+    <meta name="description" content="Zepprz cab booking demo for Karachi." />
+    <title>Zepprz — Your city, your ride</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#" aria-label="Zepprz home">
+          <span class="brand-mark">z</span>
+          <span>zepprz<span class="brand-period">.</span></span>
+        </a>
+
+        <div class="sidebar-caption">WORKSPACE</div>
+        <nav class="role-nav" aria-label="Choose a workspace">
+          <button class="role-button active" data-view="rider">
+            <span class="nav-icon">⌂</span><span>Rider app</span>
+          </button>
+          <button class="role-button" data-view="driver">
+            <span class="nav-icon">◉</span><span>Driver app</span>
+          </button>
+          <button class="role-button" data-view="admin">
+            <span class="nav-icon">▦</span><span>Admin dashboard</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="demo-note">
+            <span class="note-dot"></span>
+            <div><strong>Prototype mode</strong><br />No real rides or payments</div>
+          </div>
+          <div class="profile">
+            <div class="avatar">AS</div>
+            <div><strong>Ayaan S.</strong><span>Karachi, Pakistan</span></div>
+            <span class="profile-menu">···</span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-area">
+        <header class="topbar">
+          <div class="mobile-brand"><span class="brand-mark">z</span> zepprz<span class="brand-period">.</span></div>
+          <div class="breadcrumb"><span>Karachi</span><span class="crumb-slash">/</span><strong id="workspace-label">Rider app</strong></div>
+          <div class="topbar-right"><span class="location-pill"><span class="location-dot"></span> Karachi, PK</span><button class="help-button" aria-label="Help">?</button></div>
+        </header>
+        <div id="app-content" class="content"></div>
+      </main>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
