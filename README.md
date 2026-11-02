@@ -2,7 +2,7 @@
 
 Zepprz is a responsive cab-booking **front-end prototype** packaged with Docker and a Terraform-defined AWS deployment architecture. This project demonstrates how a web application can be containerized and prepared for a multi-AZ AWS environment with edge protection, private application networking, managed data services, and operational monitoring.
 
-> **Project status:** The browser app is a demo, not a live ride-hailing service. It has no production API, authentication, payment processing, or backend integration. The AWS environment is partially deployed in `ap-southeast-1`; CloudFront creation is blocked until AWS verifies the account, so there is no public CloudFront URL yet.
+> **Project status:** The browser app is a demo, not a live ride-hailing service. It has no production API, authentication, payment processing, or backend integration. The AWS environment is partially deployed in `ap-southeast-1`. At the time these screenshots were captured, CloudFront had not yet been created; its distribution setup is in progress.
 
 ## AWS deployment screenshots
 
@@ -34,7 +34,27 @@ The Redis replication group is available with two nodes, Multi-AZ failover, and 
 
 ![Redis cluster status and configuration](screenshots/05-redis-cluster.png)
 
-**Deployment limitation:** CloudFront was not created because AWS requires account verification before enabling CloudFront. Therefore, these screenshots document a partial deployment, not a publicly accessible, end-to-end website.
+### Networking and image registry
+
+The VPC resource map shows public, application, and data subnets across two Availability Zones, with separate NAT Gateways.
+
+![Multi-AZ VPC resource map](screenshots/06-vpc-resource-map.png)
+
+The Nginx application image was pushed to the private ECR repository.
+
+![Container image in Amazon ECR](screenshots/07-ecr-container-image.png)
+
+### Monitoring and edge protection
+
+CloudWatch shows the configured infrastructure alarms in an OK state at capture time.
+
+![CloudWatch alarm overview](screenshots/08-cloudwatch-alarms.png)
+
+The AWS WAF web ACL and traffic overview are configured. The screenshot does not prove that the ACL is attached to a CloudFront distribution.
+
+![AWS WAF web ACL overview](screenshots/09-waf-overview.png)
+
+**Deployment limitation:** These screenshots show the deployed infrastructure components, not a publicly accessible end-to-end website. CloudFront distribution setup is still in progress.
 
 ## What the app demonstrates
 
