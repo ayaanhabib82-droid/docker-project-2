@@ -2,7 +2,39 @@
 
 Zepprz is a responsive cab-booking **front-end prototype** packaged with Docker and a Terraform-defined AWS deployment architecture. This project demonstrates how a web application can be containerized and prepared for a multi-AZ AWS environment with edge protection, private application networking, managed data services, and operational monitoring.
 
-> **Project status:** The browser app is a demo, not a live ride-hailing service. It has no production API, authentication, payment processing, or backend integration. 
+> **Project status:** The browser app is a demo, not a live ride-hailing service. It has no production API, authentication, payment processing, or backend integration. The AWS environment is partially deployed in `ap-southeast-1`; CloudFront creation is blocked until AWS verifies the account, so there is no public CloudFront URL yet.
+
+## AWS deployment screenshots
+
+These AWS Console screenshots were captured on November 2, 2026. They show the resources that were successfully deployed; AWS account IDs, ARNs, VPC/subnet IDs, and service endpoints have been redacted for this public repository.
+
+### ECS Fargate
+
+The ECS cluster is active, with two running tasks and Container Insights enabled.
+
+![ECS cluster with two running tasks](screenshots/01-ecs-cluster.png)
+
+### Application Load Balancer
+
+The internet-facing ALB is active across two Availability Zones. Its origin access is restricted; it is not a public application URL.
+
+![Application Load Balancer status](screenshots/02-application-load-balancer.png)
+
+The ALB target group reports two healthy targets.
+
+![Two healthy application targets](screenshots/03-healthy-targets.png)
+
+### Managed data services
+
+The PostgreSQL RDS instance is available. The screenshot shows the instance class; the application demo does not connect to this database.
+
+![PostgreSQL RDS instance status](screenshots/04-postgresql-database.png)
+
+The Redis replication group is available with two nodes, Multi-AZ failover, and encryption enabled. The browser demo does not connect to Redis.
+
+![Redis cluster status and configuration](screenshots/05-redis-cluster.png)
+
+**Deployment limitation:** CloudFront was not created because AWS requires account verification before enabling CloudFront. Therefore, these screenshots document a partial deployment, not a publicly accessible, end-to-end website.
 
 ## What the app demonstrates
 

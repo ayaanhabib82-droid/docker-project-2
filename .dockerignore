@@ -12,3 +12,4 @@ main.tf
 outputs.tf
 variables.tf
 terraform.tfvars.example
+screenshots/
