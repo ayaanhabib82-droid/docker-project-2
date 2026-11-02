@@ -2,59 +2,59 @@
 
 Zepprz is a responsive cab-booking **front-end prototype** packaged with Docker and a Terraform-defined AWS deployment architecture. This project demonstrates how a web application can be containerized and prepared for a multi-AZ AWS environment with edge protection, private application networking, managed data services, and operational monitoring.
 
-> **Project status:** The browser app is a demo, not a live ride-hailing service. It has no production API, authentication, payment processing, or backend integration. The AWS environment is partially deployed in `ap-southeast-1`. At the time these screenshots were captured, CloudFront had not yet been created; its distribution setup is in progress.
+> **Project status:** The browser app is a local demo, not a live ride-hailing service. It has no production API, authentication, payment processing, or backend integration. The AWS infrastructure shown here was deployed for evaluation and has since been destroyed. There is no live AWS application endpoint; the architecture image documents the intended design.
 
-## AWS deployment screenshots
+## Historical AWS deployment screenshots
 
-These AWS Console screenshots were captured on November 2, 2026. They show the resources that were successfully deployed; AWS account IDs, ARNs, VPC/subnet IDs, and service endpoints have been redacted for this public repository.
+These AWS Console screenshots were captured on November 2, 2026, during a temporary deployment. They document resources that have since been destroyed; AWS account IDs, ARNs, VPC/subnet IDs, and service endpoints have been redacted for this public repository.
 
 ### ECS Fargate
 
-The ECS cluster is active, with two running tasks and Container Insights enabled.
+At capture time, the ECS cluster had two running tasks and Container Insights enabled.
 
 ![ECS cluster with two running tasks](screenshots/01-ecs-cluster.png)
 
 ### Application Load Balancer
 
-The internet-facing ALB is active across two Availability Zones. Its origin access is restricted; it is not a public application URL.
+At capture time, the internet-facing ALB spanned two Availability Zones. Its origin access was restricted; it was not a public application URL.
 
 ![Application Load Balancer status](screenshots/02-application-load-balancer.png)
 
-The ALB target group reports two healthy targets.
+The ALB target group reported two healthy targets at capture time.
 
 ![Two healthy application targets](screenshots/03-healthy-targets.png)
 
 ### Managed data services
 
-The PostgreSQL RDS instance is available. The screenshot shows the instance class; the application demo does not connect to this database.
+The PostgreSQL RDS instance was available. The application demo did not connect to this database.
 
 ![PostgreSQL RDS instance status](screenshots/04-postgresql-database.png)
 
-The Redis replication group is available with two nodes, Multi-AZ failover, and encryption enabled. The browser demo does not connect to Redis.
+The Redis replication group had two nodes, Multi-AZ failover, and encryption enabled. The browser demo did not connect to Redis.
 
 ![Redis cluster status and configuration](screenshots/05-redis-cluster.png)
 
 ### Networking and image registry
 
-The VPC resource map shows public, application, and data subnets across two Availability Zones, with separate NAT Gateways.
+The VPC resource map showed public, application, and data subnets across two Availability Zones, with separate NAT Gateways.
 
 ![Multi-AZ VPC resource map](screenshots/06-vpc-resource-map.png)
 
-The Nginx application image was pushed to the private ECR repository.
+The Nginx application image was pushed to a private ECR repository.
 
 ![Container image in Amazon ECR](screenshots/07-ecr-container-image.png)
 
 ### Monitoring and edge protection
 
-CloudWatch shows the configured infrastructure alarms in an OK state at capture time.
+CloudWatch showed the configured infrastructure alarms in an OK state at capture time.
 
 ![CloudWatch alarm overview](screenshots/08-cloudwatch-alarms.png)
 
-The AWS WAF web ACL and traffic overview are configured. The screenshot does not prove that the ACL is attached to a CloudFront distribution.
+The AWS WAF web ACL and traffic overview were configured. The screenshot does not prove that the ACL was attached to a CloudFront distribution.
 
 ![AWS WAF web ACL overview](screenshots/09-waf-overview.png)
 
-**Deployment limitation:** These screenshots show the deployed infrastructure components, not a publicly accessible end-to-end website. CloudFront distribution setup is still in progress.
+**Deployment note:** These images are historical evidence of a temporary infrastructure deployment, not current AWS resources. CloudFront was not created, so the app was never publicly available through CloudFront.
 
 ## What the app demonstrates
 
@@ -65,7 +65,17 @@ The AWS WAF web ACL and traffic overview are configured. The screenshot does not
 
 All rides, driver details, and fares are illustrative. No real location tracking, accounts, dispatch, or payments are implemented.
 
+### Website preview
+
+The screenshot below shows the local browser prototype. It is not a live production website.
+
+![Zepprz local rider app preview](screenshots/11-zepprz-website-preview.png)
+
 ## Architecture
+
+The diagram below shows the intended AWS architecture. It is a design reference; the AWS resources in the diagram are not currently deployed.
+
+![Zepprz proposed AWS architecture](screenshots/10-zepprz-aws-architecture.png)
 
 ```mermaid
 flowchart LR
