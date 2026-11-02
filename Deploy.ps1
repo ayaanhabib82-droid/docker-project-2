@@ -1,7 +1,9 @@
 [CmdletBinding()]
 param(
   [string]$ImageTag = "",
-  [string]$Region = "ap-southeast-1"
+  [string]$Region = "ap-southeast-1",
+  [switch]$ConfirmCreateEcr,
+  [switch]$PlanOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,6 +16,11 @@ foreach ($commandName in @("aws", "docker", "terraform")) {
 
 if (-not (Test-Path (Join-Path $PSScriptRoot "backend.generated.hcl"))) {
   throw "Run .\Setup-TerraformState.ps1 first to create and initialize the protected remote state bucket."
+}
+
+$dockerVersion = & docker info --format '{{.ServerVersion}}' 2>&1
+if ($LASTEXITCODE -ne 0) {
+  throw "Docker Desktop is not ready: $dockerVersion"
 }
 
 if ($ImageTag -eq "") {
@@ -42,11 +49,11 @@ try {
   $repository = "$repositoryOutput".Trim()
 
   if ($outputExitCode -ne 0 -or $repository -notmatch "^\d{12}\.dkr\.ecr\.[a-z0-9-]+\.amazonaws\.com/") {
-    if ((Read-Host "Type CREATE-ECR to create the ECR repository in account $accountId") -cne "CREATE-ECR") {
+    if (-not $ConfirmCreateEcr -and (Read-Host "Type CREATE-ECR to create the ECR repository in account $accountId") -cne "CREATE-ECR") {
       throw "ECR creation cancelled."
     }
 
-    & terraform apply -target=aws_ecr_repository.app "-var=image_tag=$ImageTag"
+    & terraform apply -auto-approve "-target=aws_ecr_repository.app" "-var=image_tag=$ImageTag"
     if ($LASTEXITCODE -ne 0) {
       throw "ECR repository creation failed. No container was published."
     }
@@ -88,6 +95,11 @@ try {
   & terraform plan "-var=image_tag=$ImageTag" "-out=$planPath"
   if ($LASTEXITCODE -ne 0) {
     throw "Terraform plan failed. The image was published, but application infrastructure was not applied."
+  }
+
+  if ($PlanOnly) {
+    Write-Host "Plan saved to $planPath. No application infrastructure was applied."
+    return
   }
 
   Write-Host "Review the plan above. It can create billable AWS resources."

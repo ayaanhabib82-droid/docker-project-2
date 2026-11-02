@@ -30,9 +30,11 @@ After checking `terraform.tfvars.example` values and AWS account/region, run:
 
 The deployment script shows the active AWS account, asks `CREATE-ECR` before creating the ECR repository (if needed), builds and pushes a uniquely tagged image, then prints a complete Terraform plan. It applies that exact plan only if you type `APPLY`. If you decline, the reviewed plan remains as an ignored `deploy-<tag>.tfplan` file.
 
+To prepare the state bucket non-interactively after reviewing the account and bucket name, pass `-ConfirmCreateState`. To create the ECR repository if needed, build and push the image, and generate a plan without applying the application infrastructure, run `.\Deploy.ps1 -Region ap-southeast-1 -ConfirmCreateEcr -PlanOnly`. Review the saved plan before any later `terraform apply`.
+
 CloudFront distribution deployment can take several minutes. If you set `alert_emails`, each recipient must confirm the SNS subscription email. `terraform output application_url` prints the URL after a successful deployment.
 
-For a manual deployment, run `terraform init -backend-config=backend.generated.hcl`, create the ECR repository with `terraform apply -target=aws_ecr_repository.app`, build and push an image tagged with the intended release version, then run `terraform plan -var="image_tag=<tag>" -out=deploy.tfplan` and inspect it before `terraform apply deploy.tfplan`.
+For a manual deployment, run `terraform init -backend-config=backend.generated.hcl`, create the ECR repository with `terraform apply "-target=aws_ecr_repository.app"`, build and push an image tagged with the intended release version, then run `terraform plan -var="image_tag=<tag>" -out=deploy.tfplan` and inspect it before `terraform apply deploy.tfplan`.
 
 ## Operational notes
 

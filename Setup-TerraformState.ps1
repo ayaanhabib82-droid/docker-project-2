@@ -2,7 +2,8 @@
 param(
   [string]$ProjectName = "zepprz",
   [string]$Environment = "prod",
-  [string]$Region = "ap-southeast-1"
+  [string]$Region = "ap-southeast-1",
+  [switch]$ConfirmCreateState
 )
 
 $ErrorActionPreference = "Stop"
@@ -41,13 +42,24 @@ Write-Host "AWS account: $accountId"
 Write-Host "Region:      $Region"
 Write-Host "State bucket: $bucketName"
 Write-Host "This creates or secures only the Terraform state bucket; it does not deploy the application."
-if ((Read-Host "Type CREATE-STATE to continue") -cne "CREATE-STATE") {
+if (-not $ConfirmCreateState -and (Read-Host "Type CREATE-STATE to continue") -cne "CREATE-STATE") {
   throw "State bucket setup cancelled."
 }
 
-$headResult = & aws s3api head-bucket --bucket $bucketName --expected-bucket-owner $accountId --region $Region 2>$null
-$headExitCode = $LASTEXITCODE
+$previousErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+try {
+  $headResult = & aws s3api head-bucket --bucket $bucketName --expected-bucket-owner $accountId --region $Region 2>&1
+  $headExitCode = $LASTEXITCODE
+} finally {
+  $ErrorActionPreference = $previousErrorActionPreference
+}
 if ($headExitCode -ne 0) {
+  $headError = $headResult | Out-String
+  if ($headError -notmatch "(?i)\b404\b|Not Found") {
+    throw "Could not verify state bucket ownership or availability: $headError"
+  }
+
   if ($Region -eq "us-east-1") {
     & aws s3api create-bucket --bucket $bucketName --region $Region
   } else {
@@ -67,12 +79,43 @@ if ($headExitCode -ne 0) {
   --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
 if ($LASTEXITCODE -ne 0) { throw "Could not enable S3 Block Public Access." }
 
-& aws s3api put-bucket-ownership-controls `
-  --bucket $bucketName `
-  --expected-bucket-owner $accountId `
-  --region $Region `
-  --ownership-controls '{"Rules":[{"ObjectOwnership":"BucketOwnerEnforced"}]}'
-if ($LASTEXITCODE -ne 0) { throw "Could not enforce bucket-owner object ownership." }
+$ownershipPath = Join-Path $env:TEMP "$bucketName-ownership.json"
+$encryptionPath = Join-Path $env:TEMP "$bucketName-encryption.json"
+try {
+  $ownership = @{
+    Rules = @(
+      @{
+        ObjectOwnership = "BucketOwnerEnforced"
+      }
+    )
+  } | ConvertTo-Json -Depth 5
+  Set-Content -Path $ownershipPath -Value $ownership -Encoding ASCII
+  & aws s3api put-bucket-ownership-controls `
+    --bucket $bucketName `
+    --expected-bucket-owner $accountId `
+    --region $Region `
+    --ownership-controls "file://$ownershipPath"
+  if ($LASTEXITCODE -ne 0) { throw "Could not enforce bucket-owner object ownership." }
+
+  $encryption = @{
+    Rules = @(
+      @{
+        ApplyServerSideEncryptionByDefault = @{
+          SSEAlgorithm = "AES256"
+        }
+      }
+    )
+  } | ConvertTo-Json -Depth 5
+  Set-Content -Path $encryptionPath -Value $encryption -Encoding ASCII
+  & aws s3api put-bucket-encryption `
+    --bucket $bucketName `
+    --expected-bucket-owner $accountId `
+    --region $Region `
+    --server-side-encryption-configuration "file://$encryptionPath"
+  if ($LASTEXITCODE -ne 0) { throw "Could not enable default S3 encryption." }
+} finally {
+  Remove-Item -LiteralPath $ownershipPath, $encryptionPath -ErrorAction SilentlyContinue
+}
 
 & aws s3api put-bucket-versioning `
   --bucket $bucketName `
@@ -80,13 +123,6 @@ if ($LASTEXITCODE -ne 0) { throw "Could not enforce bucket-owner object ownershi
   --region $Region `
   --versioning-configuration Status=Enabled
 if ($LASTEXITCODE -ne 0) { throw "Could not enable state bucket versioning." }
-
-& aws s3api put-bucket-encryption `
-  --bucket $bucketName `
-  --expected-bucket-owner $accountId `
-  --region $Region `
-  --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
-if ($LASTEXITCODE -ne 0) { throw "Could not enable default S3 encryption." }
 
 $policyPath = Join-Path $env:TEMP "$bucketName-policy.json"
 $policy = @{
