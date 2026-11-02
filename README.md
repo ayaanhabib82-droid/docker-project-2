@@ -2,7 +2,7 @@
 
 Zepprz is a responsive cab-booking **front-end prototype** packaged with Docker and a Terraform-defined AWS deployment architecture. This project demonstrates how a web application can be containerized and prepared for a multi-AZ AWS environment with edge protection, private application networking, managed data services, and operational monitoring.
 
-> **Project status:** The browser app is a demo, not a live ride-hailing service. It has no production API, authentication, payment processing, or backend integration. AWS infrastructure is described as code but has **not** been deployed.
+> **Project status:** The browser app is a demo, not a live ride-hailing service. It has no production API, authentication, payment processing, or backend integration. 
 
 ## What the app demonstrates
 
